@@ -59,7 +59,7 @@ samtools index -@ 20 hic_reads.dedup.bam
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=50G
+#SBATCH --mem=10G
 #SBATCH --time=10:00:00
 #SBATCH --output=yahs_%j.out
 #SBATCH --error=yahs_%j.err
