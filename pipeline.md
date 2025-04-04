@@ -70,7 +70,23 @@ cd /home/jhoffman1/mendel-nas1/Hi-C/yahs
 ./yahs /home/jhoffman1/mendel-nas1/Hi-C/juicer/references/plestiodonFasciatus.softmasked_sf.fasta /home/jhoffman1/mendel-nas1/Hi-C/hic_reads.dedup.bam
 ```
 
-## Create Hi-C contact map 
+## Generate Hi-C contact map 
+
+```
+#!/bin/bash
+#SBATCH --job-name=yahsj
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=50G
+#SBATCH --time=10:00:00
+#SBATCH --output=juc_%j.out
+#SBATCH --error=juc_%j.err
+
+./juicer pre hic-to-contigs.bin scaffolds_final.agp /home/jhoffman1/mendel-nas1/Hi-C/juicer/references/plestiodonFasciatus.softmasked_sf.fasta.fai \
+| sort -k2,2d -k6,6d -T ./ --parallel=8 -S32G \
+| awk 'NF' > alignments_sorted.txt.part && mv alignments_sorted.txt.part alignments_sorted.txt
+```
 
 ```
 #!/bin/bash
