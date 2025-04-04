@@ -71,7 +71,13 @@ cd /home/jhoffman1/mendel-nas1/Hi-C/yahs
 ```
 
 ## Generate Hi-C contact map 
+Before starting, I renamed the final fasta scaffolds_final.fa
+Also, I indexed my draft genome fasta with
+```
+samtools faidx plestiodonFasciatus.softmasked_sf.fasta
+```
 
+Now, create the input .txt file for juicer from yahs output (provided by yahs)
 ```
 #!/bin/bash
 #SBATCH --job-name=yahsj
@@ -88,19 +94,29 @@ cd /home/jhoffman1/mendel-nas1/Hi-C/yahs
 | awk 'NF' > alignments_sorted.txt.part && mv alignments_sorted.txt.part alignments_sorted.txt
 ```
 
+Used this code to generate the required chromosome size file used to make a Hi-C contact map (.hic)
+```
+samtools faidx scaffolds_final.fa
+cut -f1,2 scaffolds_final.fa.fai > scaffolds_final.chrom.sizes
+```
+
+Now, use juicertools to generate the .hic file
 ```
 #!/bin/bash
-#SBATCH --job-name=juicerpre
+#SBATCH --job-name=contactmap
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=1
 #SBATCH --mem=50G
-#SBATCH --time=48:00:00
-#SBATCH --output=juicerpre_%j.out
-#SBATCH --error=juicerpre_%j.err
+#SBATCH --time=10:00:00
+#SBATCH --output=cmap_%j.out
+#SBATCH --error=cmap_%j.err
 
 conda activate /mendel-nas1/jhoffman1/miniforge3/envs/hic
 module load Java/jdk-1.8.0_281
 
-java -Xmx50G -jar juicer_tools_1.22.01.jar pre trimmed_file.txt pfas.hic genome.chrom.sizes -v -j 10
+cd /home/jhoffman1/mendel-nas1/Hi-C/yahs
+
+java -Xmx50G -jar juicer_tools_1.22.01.jar pre alignments_sorted.txt out.hic.part scaffolds_final.chrom.sizes && 
+mv out.hic.part out.hic
 ```
