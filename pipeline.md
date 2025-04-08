@@ -41,7 +41,7 @@ or
 #SBATCH --mail-user=jhoffman1@amnh.org
 
 conda activate hic
-cd /home/jhoffman1/mendel-nas1/Hi-C
+cd /home/jhoffman1/mendel-nas1/Hi-C/nonmasked
 
 DRAFT="/home/jhoffman1/mendel-nas1/fasciatus_genome/KY_LR/assembly/hoff_pfas_total.fasta"
 HICR1="/home/jhoffman1/mendel-nas1/Hi-C/juicer/work/pfas/fastq/amnh-fs20603_HiC_R1.fastq.gz"
@@ -57,8 +57,8 @@ bwa mem -t 25 -5SP $DRAFT $HICR1 $HICR2 | samtools view -bS - > hic_reads.bam
 #SBATCH --job-name=stools
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=25
-#SBATCH --mem=50gb
+#SBATCH --cpus-per-task=20
+#SBATCH --mem=2gb
 #SBATCH --time=100:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jhoffman1@amnh.org
@@ -68,11 +68,7 @@ cd /home/jhoffman1/mendel-nas1/Hi-C
 
 samtools sort -@ 20 -n -o hic_reads.querysorted.bam hic_reads.bam &
 wait
-samtools fixmate -m hic_reads.querysorted.bam hic_reads.fixmate.bam &
-wait
-samtools markdup -@ 20 -r hic_reads.fixmate.sorted.bam hic_reads.dedup.bam &
-wait
-samtools index -@ 20 hic_reads.dedup.bam
+samtools index -@ 20 hic_reads.dedup.bam hic_reads.querysorted.bam
 ```
 
 
@@ -92,7 +88,7 @@ samtools index -@ 20 hic_reads.dedup.bam
 conda activate /mendel-nas1/jhoffman1/miniforge3/envs/hic
 cd /home/jhoffman1/mendel-nas1/Hi-C/yahs
 
-./yahs /home/jhoffman1/mendel-nas1/Hi-C/juicer/references/plestiodonFasciatus.softmasked_sf.fasta /home/jhoffman1/mendel-nas1/Hi-C/hic_reads.dedup.bam
+./yahs /home/jhoffman1/mendel-nas1/fasciatus_genome/KY_LR/assembly/hoff_pfas_total.fasta /home/jhoffman1/mendel-nas1/Hi-C/hic_reads.dedup.bam
 ```
 
 ## Generate Hi-C contact map 
