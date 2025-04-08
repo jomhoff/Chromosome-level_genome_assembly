@@ -5,7 +5,10 @@ For this genome, I started with my long-read hifiasm assembly. The assembly meth
 Hi-C sequencing was done through Phase Genomics.
 
 ## Align Hi-C data to Assembly with BWA
-
+make sure to index draft genome with BWA before starting
+```
+bwa index hoff_pfas_total.fasta
+```
 ```
 #!/bin/sh
 #SBATCH --job-name=bwa
@@ -23,6 +26,28 @@ cd /home/jhoffman1/mendel-nas1/Hi-C
 bwa mem -t 25 -5SP plestiodonFasciatus.softmasked_sf.fasta \
 amnh-fs20603_HiC_R1.fastq.gz \
 amnh-fs20603_HiC_R2.fastq.gz | samtools view -bS - > hic_reads.bam
+```
+or 
+
+```
+#!/bin/sh
+#SBATCH --job-name=bwa
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=25
+#SBATCH --mem=50gb
+#SBATCH --time=100:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=jhoffman1@amnh.org
+
+conda activate hic
+cd /home/jhoffman1/mendel-nas1/Hi-C
+
+DRAFT="/home/jhoffman1/mendel-nas1/fasciatus_genome/KY_LR/assembly/hoff_pfas_total.fasta"
+HICR1="/home/jhoffman1/mendel-nas1/Hi-C/juicer/work/pfas/fastq/amnh-fs20603_HiC_R1.fastq.gz"
+HICR2="/home/jhoffman1/mendel-nas1/Hi-C/juicer/work/pfas/fastq/amnh-fs20603_HiC_R2.fastq.gz"
+
+bwa mem -t 25 -5SP $DRAFT $HICR1 $HICR2 | samtools view -bS - > hic_reads.bam
 ```
 
 ## Remove duplicates and sort 
